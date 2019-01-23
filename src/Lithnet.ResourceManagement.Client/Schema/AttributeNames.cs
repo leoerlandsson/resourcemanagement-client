@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Lithnet.ResourceManagement.Client
+﻿namespace Lithnet.ResourceManagement.Client
 {
     /// <summary>
     /// Defines a list of built-in attribute names in the Resource Management Service
@@ -157,6 +152,11 @@ namespace Lithnet.ResourceManagement.Client
         /// The Locale attribute
         /// </summary>
         public const string Locale = "Locale";
+
+        /// <summary>
+        /// The RequestParameter attribute
+        /// </summary>
+        public const string RequestParameter = "RequestParameter";
     }
 }
 

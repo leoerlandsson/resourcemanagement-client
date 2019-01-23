@@ -2,10 +2,10 @@
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using Microsoft.ResourceManagement.WebServices;
-using Microsoft.ResourceManagement.WebServices.Exceptions;
 using Microsoft.ResourceManagement.WebServices.Faults;
 using Microsoft.ResourceManagement.WebServices.WSTransfer;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Lithnet.ResourceManagement.Client.ResourceManagementService
 {
@@ -83,18 +83,20 @@ namespace Lithnet.ResourceManagement.Client.ResourceManagementService
         {
             if (resources == null)
             {
-                throw new ArgumentNullException("resources");
+                throw new ArgumentNullException(nameof(resources));
             }
+
+            ResourceObject[] resourceArray = resources.ToArray();
 
             try
             {
-                using (Message message = MessageComposer.CreateCreateMessage(resources))
+                using (Message message = MessageComposer.CreateCreateMessage(resourceArray))
                 {
                     using (Message responseMessage = this.Invoke((c) => c.Create(message)))
                     {
                         responseMessage.ThrowOnFault();
 
-                        foreach (ResourceObject resource in resources)
+                        foreach (ResourceObject resource in resourceArray)
                         {
                             resource.CompleteCreateOperation(resource.ObjectID);
                         }

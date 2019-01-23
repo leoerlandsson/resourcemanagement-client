@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Xml.Schema;
-using Lithnet.ResourceManagement.Client;
 using System.Xml;
 
 namespace Lithnet.ResourceManagement.Client
@@ -53,7 +51,7 @@ namespace Lithnet.ResourceManagement.Client
         /// </summary>
         public string Regex { get; private set; }
 
-        /// <summary>
+       /// <summary>
         /// Gets or sets the list of attribute names that are always read-only in the schema
         /// </summary>
         private static List<string> ReadOnlyAttributeNames { get; set; }

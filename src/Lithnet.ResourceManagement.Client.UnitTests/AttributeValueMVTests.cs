@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.ResourceManagement;
 using Microsoft.ResourceManagement.WebServices;
 using Microsoft.ResourceManagement.WebServices.IdentityManagementOperation;
-using System.Collections.ObjectModel;
 using System.Collections.Generic;
-using Lithnet.ResourceManagement.Client;
 
 namespace Lithnet.ResourceManagement.Client.UnitTests
 {
@@ -18,7 +15,7 @@ namespace Lithnet.ResourceManagement.Client.UnitTests
         // Multivalued string 
 
         [TestMethod]
-        public void TestSVAddStringWithNullInitialValue()
+        public void TestMVAddStringWithNullInitialValue()
         {
             List<object> testValues = new List<object>() { "myvalue1", "myvalue2" };
             List<object> initialValues = new List<object>();
@@ -28,7 +25,15 @@ namespace Lithnet.ResourceManagement.Client.UnitTests
         }
 
         [TestMethod]
-        public void TestSVSetStringWithNullInitialValue()
+        public void TestMVBlindRemoveString()
+        {
+            List<object> testValues = new List<object>() { "myvalue1" };
+            this.ExecuteMVTestRemoveBlind(AttributeType.String, testValues);
+        }
+
+
+        [TestMethod]
+        public void TestMVSetStringWithNullInitialValue()
         {
             List<object> testValues = new List<object>() { "myvalue1", "myvalue2" };
             List<object> initialValues = new List<object>();
@@ -38,7 +43,7 @@ namespace Lithnet.ResourceManagement.Client.UnitTests
         }
 
         [TestMethod]
-        public void TestSVRemoveStringWithNullInitalValue()
+        public void TestMVRemoveStringWithNullInitalValue()
         {
             List<object> testValues = new List<object>() { "myvalue1", "myvalue2" };
             List<object> initialValues = new List<object>();
@@ -48,7 +53,7 @@ namespace Lithnet.ResourceManagement.Client.UnitTests
         }
 
         [TestMethod]
-        public void TestSVAddStringWithInitialValue()
+        public void TestMVAddStringWithInitialValue()
         {
             List<object> testValues = new List<object>() { "myvalue1", "myvalue2" };
             List<object> initialValues = new List<object>() { "myvalue3", "myvalue4" };
@@ -58,7 +63,7 @@ namespace Lithnet.ResourceManagement.Client.UnitTests
         }
 
         [TestMethod]
-        public void TestSVSetStringWithInitialValue()
+        public void TestMVSetStringWithInitialValue()
         {
             List<object> testValues = new List<object>() { "myvalue1", "myvalue2" };
             List<object> initialValues = new List<object>() { "myvalue3", "myvalue4" };
@@ -68,7 +73,7 @@ namespace Lithnet.ResourceManagement.Client.UnitTests
         }
 
         [TestMethod]
-        public void TestSVRemoveStringWithInitialValue()
+        public void TestMVRemoveStringWithInitialValue()
         {
             List<object> testValues = new List<object>() { "myvalue1", "myvalue2" };
             List<object> initialValues = new List<object>() { "myvalue1", "myvalue2", "myvalue3" };
@@ -81,7 +86,7 @@ namespace Lithnet.ResourceManagement.Client.UnitTests
         // Multivalued long 
 
         [TestMethod]
-        public void TestSVAddIntegerWithNullInitialValue()
+        public void TestMVAddIntegerWithNullInitialValue()
         {
             List<object> testValues = new List<object>() { 1, 2 };
             List<object> initialValues = new List<object>();
@@ -91,7 +96,7 @@ namespace Lithnet.ResourceManagement.Client.UnitTests
         }
 
         [TestMethod]
-        public void TestSVSetIntegerWithNullInitialValue()
+        public void TestMVSetIntegerWithNullInitialValue()
         {
             List<object> testValues = new List<object>() { 1, 2 };
             List<object> initialValues = new List<object>();
@@ -101,7 +106,7 @@ namespace Lithnet.ResourceManagement.Client.UnitTests
         }
 
         [TestMethod]
-        public void TestSVRemoveIntegerWithNullInitalValue()
+        public void TestMVRemoveIntegerWithNullInitalValue()
         {
             List<object> testValues = new List<object>() { 1, 2 };
             List<object> initialValues = new List<object>();
@@ -111,7 +116,7 @@ namespace Lithnet.ResourceManagement.Client.UnitTests
         }
 
         [TestMethod]
-        public void TestSVAddIntegerWithInitialValue()
+        public void TestMVAddIntegerWithInitialValue()
         {
             List<object> testValues = new List<object>() { 1, 2 };
             List<object> initialValues = new List<object>() { 3, 4 };
@@ -121,7 +126,7 @@ namespace Lithnet.ResourceManagement.Client.UnitTests
         }
 
         [TestMethod]
-        public void TestSVSetIntegerWithInitialValue()
+        public void TestMVSetIntegerWithInitialValue()
         {
             List<object> testValues = new List<object>() { 1, 2 };
             List<object> initialValues = new List<object>() { 3, 4 };
@@ -131,7 +136,7 @@ namespace Lithnet.ResourceManagement.Client.UnitTests
         }
 
         [TestMethod]
-        public void TestSVRemoveIntegerWithInitialValue()
+        public void TestMVRemoveIntegerWithInitialValue()
         {
             List<object> testValues = new List<object>() { 1, 2 };
             List<object> initialValues = new List<object>() { 1, 2, 3 };
@@ -143,7 +148,7 @@ namespace Lithnet.ResourceManagement.Client.UnitTests
         // Multivalued DateTime 
 
         [TestMethod]
-        public void TestSVAddDateTimeWithNullInitialValue()
+        public void TestMVAddDateTimeWithNullInitialValue()
         {
             DateTime value1 = DateTime.Now;
             DateTime value2 = DateTime.Now.AddDays(1);
@@ -155,7 +160,7 @@ namespace Lithnet.ResourceManagement.Client.UnitTests
         }
 
         [TestMethod]
-        public void TestSVSetDateTimeWithNullInitialValue()
+        public void TestMVSetDateTimeWithNullInitialValue()
         {
             DateTime value1 = DateTime.Now;
             DateTime value2 = DateTime.Now.AddDays(1);
@@ -167,7 +172,7 @@ namespace Lithnet.ResourceManagement.Client.UnitTests
         }
 
         [TestMethod]
-        public void TestSVRemoveDateTimeWithNullInitalValue()
+        public void TestMVRemoveDateTimeWithNullInitalValue()
         {
             DateTime value1 = DateTime.Now;
             DateTime value2 = DateTime.Now.AddDays(1);
@@ -179,7 +184,7 @@ namespace Lithnet.ResourceManagement.Client.UnitTests
         }
 
         [TestMethod]
-        public void TestSVAddDateTimeWithInitialValue()
+        public void TestMVAddDateTimeWithInitialValue()
         {
             DateTime value1 = DateTime.Now;
             DateTime value2 = DateTime.Now.AddDays(1);
@@ -193,7 +198,7 @@ namespace Lithnet.ResourceManagement.Client.UnitTests
         }
 
         [TestMethod]
-        public void TestSVSetDateTimeWithInitialValue()
+        public void TestMVSetDateTimeWithInitialValue()
         {
             DateTime value1 = DateTime.Now;
             DateTime value2 = DateTime.Now.AddDays(1);
@@ -207,7 +212,7 @@ namespace Lithnet.ResourceManagement.Client.UnitTests
         }
 
         [TestMethod]
-        public void TestSVRemoveDateTimeWithInitialValue()
+        public void TestMVRemoveDateTimeWithInitialValue()
         {
             DateTime value1 = DateTime.Now;
             DateTime value2 = DateTime.Now.AddDays(1);
@@ -222,7 +227,7 @@ namespace Lithnet.ResourceManagement.Client.UnitTests
         // Multivalued UniqueIdentifier 
 
         [TestMethod]
-        public void TestSVAddReferenceWithNullInitialValue()
+        public void TestMVAddReferenceWithNullInitialValue()
         {
             UniqueIdentifier value1 = new UniqueIdentifier("0dcafc9f-d4cf-4754-b10d-4716d9a05be6");
             UniqueIdentifier value2 = new UniqueIdentifier("9626643b-f4df-45a4-b080-df1d9a057bca");
@@ -234,7 +239,7 @@ namespace Lithnet.ResourceManagement.Client.UnitTests
         }
 
         [TestMethod]
-        public void TestSVSetReferenceWithNullInitialValue()
+        public void TestMVSetReferenceWithNullInitialValue()
         {
             UniqueIdentifier value1 = new UniqueIdentifier("0dcafc9f-d4cf-4754-b10d-4716d9a05be6");
             UniqueIdentifier value2 = new UniqueIdentifier("9626643b-f4df-45a4-b080-df1d9a057bca");
@@ -246,7 +251,7 @@ namespace Lithnet.ResourceManagement.Client.UnitTests
         }
 
         [TestMethod]
-        public void TestSVRemoveReferenceWithNullInitalValue()
+        public void TestMVRemoveReferenceWithNullInitalValue()
         {
             UniqueIdentifier value1 = new UniqueIdentifier("0dcafc9f-d4cf-4754-b10d-4716d9a05be6");
             UniqueIdentifier value2 = new UniqueIdentifier("9626643b-f4df-45a4-b080-df1d9a057bca");
@@ -258,7 +263,7 @@ namespace Lithnet.ResourceManagement.Client.UnitTests
         }
 
         [TestMethod]
-        public void TestSVAddReferenceWithInitialValue()
+        public void TestMVAddReferenceWithInitialValue()
         {
             UniqueIdentifier value1 = new UniqueIdentifier("0dcafc9f-d4cf-4754-b10d-4716d9a05be6");
             UniqueIdentifier value2 = new UniqueIdentifier("9626643b-f4df-45a4-b080-df1d9a057bca");
@@ -272,7 +277,7 @@ namespace Lithnet.ResourceManagement.Client.UnitTests
         }
 
         [TestMethod]
-        public void TestSVSetReferenceWithInitialValue()
+        public void TestMVSetReferenceWithInitialValue()
         {
             UniqueIdentifier value1 = new UniqueIdentifier("0dcafc9f-d4cf-4754-b10d-4716d9a05be6");
             UniqueIdentifier value2 = new UniqueIdentifier("9626643b-f4df-45a4-b080-df1d9a057bca");
@@ -286,7 +291,7 @@ namespace Lithnet.ResourceManagement.Client.UnitTests
         }
 
         [TestMethod]
-        public void TestSVRemoveReferenceWithInitialValue()
+        public void TestMVRemoveReferenceWithInitialValue()
         {
             UniqueIdentifier value1 = new UniqueIdentifier("0dcafc9f-d4cf-4754-b10d-4716d9a05be6");
             UniqueIdentifier value2 = new UniqueIdentifier("9626643b-f4df-45a4-b080-df1d9a057bca");
@@ -301,7 +306,7 @@ namespace Lithnet.ResourceManagement.Client.UnitTests
         // Multivalued byte[] 
 
         [TestMethod]
-        public void TestSVAddBinaryWithNullInitialValue()
+        public void TestMVAddBinaryWithNullInitialValue()
         {
             byte[] value1 = new byte[4] { 0x01, 0x02, 0x03, 0x04 };
             byte[] value2 = new byte[4] { 0x05, 0x06, 0x07, 0x08 };
@@ -314,7 +319,7 @@ namespace Lithnet.ResourceManagement.Client.UnitTests
         }
 
         [TestMethod]
-        public void TestSVSetBinaryWithNullInitialValue()
+        public void TestMVSetBinaryWithNullInitialValue()
         {
             byte[] value1 = new byte[4] { 0x01, 0x02, 0x03, 0x04 };
             byte[] value2 = new byte[4] { 0x05, 0x06, 0x07, 0x08 };
@@ -327,7 +332,7 @@ namespace Lithnet.ResourceManagement.Client.UnitTests
         }
 
         [TestMethod]
-        public void TestSVRemoveBinaryWithNullInitalValue()
+        public void TestMVRemoveBinaryWithNullInitalValue()
         {
             byte[] value1 = new byte[4] { 0x01, 0x02, 0x03, 0x04 };
             byte[] value2 = new byte[4] { 0x05, 0x06, 0x07, 0x08 };
@@ -340,7 +345,7 @@ namespace Lithnet.ResourceManagement.Client.UnitTests
         }
 
         [TestMethod]
-        public void TestSVAddBinaryWithInitialValue()
+        public void TestMVAddBinaryWithInitialValue()
         {
             byte[] value1 = new byte[4] { 0x01, 0x02, 0x03, 0x04 };
             byte[] value2 = new byte[4] { 0x05, 0x06, 0x07, 0x08 };
@@ -355,7 +360,7 @@ namespace Lithnet.ResourceManagement.Client.UnitTests
         }
 
         [TestMethod]
-        public void TestSVSetBinaryWithInitialValue()
+        public void TestMVSetBinaryWithInitialValue()
         {
             byte[] value1 = new byte[4] { 0x01, 0x02, 0x03, 0x04 };
             byte[] value2 = new byte[4] { 0x05, 0x06, 0x07, 0x08 };
@@ -370,7 +375,7 @@ namespace Lithnet.ResourceManagement.Client.UnitTests
         }
 
         [TestMethod]
-        public void TestSVRemoveBinaryWithInitialValue()
+        public void TestMVRemoveBinaryWithInitialValue()
         {
             byte[] value1 = new byte[4] { 0x01, 0x02, 0x03, 0x04 };
             byte[] value2 = new byte[4] { 0x05, 0x06, 0x07, 0x08 };
@@ -394,7 +399,7 @@ namespace Lithnet.ResourceManagement.Client.UnitTests
                 value.AddValue(testValue);
             }
 
-            Assert.IsTrue(comparer.Equals(value.Value, expectedValues));
+            Assert.IsTrue(this.comparer.Equals(value.Value, expectedValues));
 
             List<AttributeValueChange> expectedChanges = new List<AttributeValueChange>();
             foreach (object testValue in testValues)
@@ -406,7 +411,7 @@ namespace Lithnet.ResourceManagement.Client.UnitTests
 
             foreach (AttributeValueChange expectedChange in expectedChanges)
             {
-                if (!value.ValueChanges.Any(t => t.ChangeType == expectedChange.ChangeType && comparer.Equals(t.Value, expectedChange.Value)))
+                if (!value.ValueChanges.Any(t => t.ChangeType == expectedChange.ChangeType && this.comparer.Equals(t.Value, expectedChange.Value)))
                 {
                     Assert.Fail("The expectedXpath change was not found: {0}:{1}", expectedChange.ChangeType, expectedChange.Value);
                 }
@@ -420,7 +425,7 @@ namespace Lithnet.ResourceManagement.Client.UnitTests
 
             value.SetValue(testValues);
 
-            Assert.IsTrue(comparer.Equals(value.Value, expectedValues));
+            Assert.IsTrue(this.comparer.Equals(value.Value, expectedValues));
 
             List<AttributeValueChange> expectedChanges = new List<AttributeValueChange>();
             foreach (object testValue in testValues)
@@ -437,7 +442,7 @@ namespace Lithnet.ResourceManagement.Client.UnitTests
 
             foreach (AttributeValueChange expectedChange in expectedChanges)
             {
-                if (!value.ValueChanges.Any(t => t.ChangeType == expectedChange.ChangeType && comparer.Equals(t.Value, expectedChange.Value)))
+                if (!value.ValueChanges.Any(t => t.ChangeType == expectedChange.ChangeType && this.comparer.Equals(t.Value, expectedChange.Value)))
                 {
                     Assert.Fail("The expectedXpath change was not found: {0}:{1}", expectedChange.ChangeType, expectedChange.Value);
                 }
@@ -454,7 +459,7 @@ namespace Lithnet.ResourceManagement.Client.UnitTests
                 value.RemoveValue(testValue);
             }
 
-            Assert.IsTrue(comparer.Equals(value.Value, expectedValues));
+            Assert.IsTrue(this.comparer.Equals(value.Value, expectedValues));
 
             List<AttributeValueChange> expectedChanges = new List<AttributeValueChange>();
 
@@ -470,7 +475,31 @@ namespace Lithnet.ResourceManagement.Client.UnitTests
 
             foreach (AttributeValueChange expectedChange in expectedChanges)
             {
-                if (!value.ValueChanges.Any(t => t.ChangeType == expectedChange.ChangeType && comparer.Equals(t.Value, expectedChange.Value)))
+                if (!value.ValueChanges.Any(t => t.ChangeType == expectedChange.ChangeType && this.comparer.Equals(t.Value, expectedChange.Value)))
+                {
+                    Assert.Fail("The expectedXpath change was not found: {0}:{1}", expectedChange.ChangeType, expectedChange.Value);
+                }
+            }
+        }
+
+        private void ExecuteMVTestRemoveBlind(AttributeType type, IList<object> valuesToBlindRemove)
+        {
+            AttributeTypeDefinition attribute = new AttributeTypeDefinition("test", type, true, false, false);
+            AttributeValue value = new AttributeValue(attribute);
+
+            List<AttributeValueChange> expectedChanges = new List<AttributeValueChange>();
+
+            foreach (object testValue in valuesToBlindRemove)
+            {
+                value.RemoveValue(testValue, true);
+                expectedChanges.Add(new AttributeValueChange(ModeType.Remove, testValue));
+            }
+
+            Assert.AreEqual(expectedChanges.Count, value.ValueChanges.Count);
+
+            foreach (AttributeValueChange expectedChange in expectedChanges)
+            {
+                if (!value.ValueChanges.Any(t => t.ChangeType == expectedChange.ChangeType && this.comparer.Equals(t.Value, expectedChange.Value)))
                 {
                     Assert.Fail("The expectedXpath change was not found: {0}:{1}", expectedChange.ChangeType, expectedChange.Value);
                 }

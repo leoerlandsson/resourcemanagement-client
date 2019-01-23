@@ -1,14 +1,10 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="Extensions.cs" company="Ryan Newington">
-// Copyright (c) 2013
-// </copyright>
-// -----------------------------------------------------------------------
+﻿using System.Collections;
+using System.Linq;
 
 namespace Lithnet.ResourceManagement.Client
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.ServiceModel;
     using System.ServiceModel.Channels;
 
@@ -48,6 +44,86 @@ namespace Lithnet.ResourceManagement.Client
             }
         }
 
+        public static bool HasOne<T>(this IEnumerable<T> enumerable)
+        {
+            bool hasOneItem = false;
+
+            IList list = enumerable as IList;
+
+            if (list != null)
+            {
+                return list.Count == 1;
+            }
+
+            foreach (T item in enumerable)
+            {
+                if (hasOneItem)
+                {
+                    return false;
+                }
+
+                hasOneItem = true;
+            }
+
+            return hasOneItem;
+        }
+
+        /// <summary>
+        /// Iterates into an IEnumerable as few times as possible to determine if the collection contains 0, 1, or > 1 elements. Collections with more than one item will return a maximum value of 2
+        /// </summary>
+        /// <param name="enumerable">The collection to count</param>
+        /// <returns>Either, zero, one, or two</returns>
+        public static int CountZeroOneOrMore(this IEnumerable enumerable)
+        {
+            int count = 0;
+
+            if (enumerable == null)
+            {
+                return 0;
+            }
+
+            IList list = enumerable as IList;
+
+            if (list != null)
+            {
+                return list.Count >= 2 ? 2 : list.Count;
+            }
+            
+            IEnumerator e = enumerable.GetEnumerator();
+
+            while (e.MoveNext())
+            {
+                count++;
+
+                if (count >= 2)
+                {
+                    return 2;
+                }
+            }
+
+            return count;
+        }
+
+        public static bool IsNullOrEmpty<T>(this IEnumerable<T> enumerable)
+        {
+            return enumerable == null || !enumerable.Any();
+        }
+
+        public static bool HasMoreThanOne<T>(this IEnumerable<T> enumerable)
+        {
+            return enumerable.Skip(1).Any();
+        }
+
+        public static bool HasOnlyOne<T>(this IEnumerable<T> enumerable)
+        {
+            return enumerable.Any() && !enumerable.Skip(1).Any();
+        }
+
+        public static T[] GetFirstTwoItems<T>(this IEnumerable<T> enumerable)
+        {
+            return enumerable.Take(2).ToArray();
+        }
+
         public static T Invoke<T, T1>(this ClientBase<T1> client, Func<T1, T> action) where T1 : class
         {
 
@@ -65,6 +141,21 @@ namespace Lithnet.ResourceManagement.Client
                 ((IClientChannel)c).Abort();
                 throw;
             }
+        }
+
+        public static List<string> ToList(this Enum p)
+        {
+            List<string> permissions = new List<string>();
+
+            foreach (Enum value in Enum.GetValues(p.GetType()))
+            {
+                if (p.HasFlag(value) && Convert.ToInt32(value) != 0)
+                {
+                    permissions.Add(value.ToString());
+                }
+            }
+
+            return permissions;
         }
     }
 }

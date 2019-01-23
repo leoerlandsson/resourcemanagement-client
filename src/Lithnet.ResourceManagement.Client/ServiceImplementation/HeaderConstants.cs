@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Lithnet.ResourceManagement.Client
+﻿namespace Lithnet.ResourceManagement.Client
 {
     internal static class HeaderConstants
     {
@@ -11,6 +6,6 @@ namespace Lithnet.ResourceManagement.Client
         public const string IncludeCount = "IncludeCount";
         public const string CompositeTypeOperation = "CompositeTypeOperation";
         public const string ResourceReferenceProperty = "ResourceReferenceProperty";
-
+        public const string IncludePermissionHints = "IncludePermissionHints";
     }
 }

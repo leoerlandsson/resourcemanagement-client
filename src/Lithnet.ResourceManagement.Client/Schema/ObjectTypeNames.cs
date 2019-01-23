@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Lithnet.ResourceManagement.Client
+﻿namespace Lithnet.ResourceManagement.Client
 {
     /// <summary>
     /// Defines a list of built-in object type names in the Resource Management Service
@@ -62,6 +57,11 @@ namespace Lithnet.ResourceManagement.Client
         /// The BindingDescription object type
         /// </summary>
         public const string BindingDescription = "BindingDescription";
+
+        /// <summary>
+        /// The Request object type
+        /// </summary>
+        public const string Request = "Request";
     }
 }
 

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.Xml;
 using Microsoft.ResourceManagement.WebServices;
@@ -10,7 +9,7 @@ using System.Globalization;
 
 namespace Lithnet.ResourceManagement.Client.ResourceManagementService
 {
-    internal partial class ResourceClient : ClientBase<Resource>, Resource
+    internal partial class ResourceClient 
     {
         private ResourceManagementClient client;
 
@@ -24,7 +23,7 @@ namespace Lithnet.ResourceManagement.Client.ResourceManagementService
         {
             if (resource == null)
             {
-                throw new ArgumentNullException("resource");
+                throw new ArgumentNullException(nameof(resource));
             }
 
             using (Message message = MessageComposer.CreatePutMessage(resource, locale))
@@ -34,7 +33,7 @@ namespace Lithnet.ResourceManagement.Client.ResourceManagementService
                     return;
                 }
 
-                using (Message responseMessage = this.Invoke((c) => c.Put(message)))
+                using (Message responseMessage = this.Invoke(c => c.Put(message)))
                 {
                     responseMessage.ThrowOnFault();
                 }
@@ -45,10 +44,10 @@ namespace Lithnet.ResourceManagement.Client.ResourceManagementService
         {
             if (resources == null)
             {
-                throw new ArgumentNullException("resources");
+                throw new ArgumentNullException(nameof(resources));
             }
-           
-            using (Message message = MessageComposer.CreatePutMessage(resources))
+
+            using (Message message = MessageComposer.CreatePutMessage(resources.ToArray()))
             {
                 if (message == null)
                 {
@@ -62,18 +61,16 @@ namespace Lithnet.ResourceManagement.Client.ResourceManagementService
             }
         }
 
-        public ResourceObject Get(UniqueIdentifier id, IEnumerable<string> attributes, CultureInfo locale)
+        public ResourceObject Get(UniqueIdentifier id, IEnumerable<string> attributes, CultureInfo locale, bool getPermissions)
         {
             if (id == null)
             {
-                throw new ArgumentNullException("id");
+                throw new ArgumentNullException(nameof(id));
             }
 
             bool partialResponse = attributes != null;
             
-            GetResponse r = new GetResponse();
-
-            using (Message message = MessageComposer.CreateGetMessage(id, attributes, locale))
+            using (Message message = MessageComposer.CreateGetMessage(id, attributes?.ToArray(), locale, getPermissions))
             {
                 using (Message responseMessage = this.Invoke((c) => c.Get(message)))
                 {
@@ -95,17 +92,29 @@ namespace Lithnet.ResourceManagement.Client.ResourceManagementService
 
         public void Delete(IEnumerable<ResourceObject> resources)
         {
+            if (resources == null)
+            {
+                throw new ArgumentNullException(nameof(resources));
+            }
+
             this.Delete(resources.Select(t => t.ObjectID));
         }
 
         public void Delete(IEnumerable<UniqueIdentifier> resourceIDs)
         {
-            if (!resourceIDs.Any())
+            if (resourceIDs == null)
+            {
+                throw new ArgumentNullException(nameof(resourceIDs));
+            }
+
+            UniqueIdentifier[] ids = resourceIDs.ToArray();
+
+            if (ids.Length == 0)
             {
                 return;
             }
 
-            using (Message message = MessageComposer.CreateDeleteMessage(resourceIDs))
+            using (Message message = MessageComposer.CreateDeleteMessage(ids))
             {
                 using (Message responseMessage = this.Invoke((c) => c.Delete(message)))
                 {
@@ -116,11 +125,21 @@ namespace Lithnet.ResourceManagement.Client.ResourceManagementService
 
         public void Delete(ResourceObject resource)
         {
+            if (resource == null)
+            {
+                throw new ArgumentNullException(nameof(resource));
+            }
+
             this.Delete(resource.ObjectID);
         }
 
         public void Delete(UniqueIdentifier id)
         {
+            if (id == null)
+            {
+                throw new ArgumentNullException(nameof(id));
+            }
+
             using (Message message = MessageComposer.CreateDeleteMessage(id))
             {
                 using (Message responseMessage = this.Invoke((c) => c.Delete(message)))
@@ -134,12 +153,10 @@ namespace Lithnet.ResourceManagement.Client.ResourceManagementService
         {
             if (resource == null)
             {
-                throw new ArgumentNullException("resource");
+                throw new ArgumentNullException(nameof(resource));
             }
 
-            GetResponse r = new GetResponse();
-
-            using (Message message = MessageComposer.CreateGetMessage(resource.ObjectID, null, resource.Locale))
+            using (Message message = MessageComposer.CreateGetMessage(resource.ObjectID, null, resource.Locale, resource.HasPermissionHints))
             {
                 using (Message responseMessage = this.Invoke((c) => c.Get(message)))
                 {

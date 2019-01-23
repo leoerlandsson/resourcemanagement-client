@@ -13,25 +13,36 @@ namespace Lithnet.ResourceManagement.Client.ResourceManagementService
     internal static class MessageComposer
     {
         private const string DefaultPageSize = "200";
-        private static UniqueIdentifier builtInAdminAccount = new UniqueIdentifier("7fb2b853-24f0-4498-9534-4e10589723c4");
-        private static UniqueIdentifier syncServiceAccount = new UniqueIdentifier("fb89aefa-5ea1-47f1-8890-abe7797d6497");
-        private static UniqueIdentifier fimServiceAccount = new UniqueIdentifier("e05d1f1b-3d5e-4014-baa6-94dee7d68c89");
-        private static UniqueIdentifier anonymousResource = new UniqueIdentifier("b0b36673-d43b-4cfa-a7a2-aff14fd90522");
+
+        private static HashSet<UniqueIdentifier> builtInResources;
+
+        static MessageComposer()
+        {
+            MessageComposer.builtInResources = new HashSet<UniqueIdentifier>()
+            {
+                new UniqueIdentifier("7fb2b853-24f0-4498-9534-4e10589723c4"), // Built-in admin account
+                new UniqueIdentifier("fb89aefa-5ea1-47f1-8890-abe7797d6497"), // Sync service account
+                new UniqueIdentifier("e05d1f1b-3d5e-4014-baa6-94dee7d68c89"), // FIM service account
+                new UniqueIdentifier("b0b36673-d43b-4cfa-a7a2-aff14fd90522") // anonymous resource
+            };
+        }
 
         internal static Message CreateGetMessage(UniqueIdentifier id)
         {
-            return CreateGetMessage(id, null, null);
+            return CreateGetMessage(id, null, null, false);
         }
 
-        internal static Message CreateGetMessage(UniqueIdentifier id, IEnumerable<string> attributes, CultureInfo locale)
+        internal static Message CreateGetMessage(UniqueIdentifier id, string[] attributes, CultureInfo locale, bool includePermissions)
         {
             Get op = null;
 
-            if (attributes != null && attributes.Any())
+            if (attributes != null && attributes.Length > 0)
             {
-                op = new Get();
-                op.Dialect = Namespaces.RMIdentityAttributeType;
-                op.Expressions = MessageComposer.AddMandatoryAttributes(attributes, locale).ToArray();
+                op = new Get
+                {
+                    Dialect = Namespaces.RMIdentityAttributeType,
+                    Expressions = MessageComposer.AddMandatoryAttributes(attributes, locale).ToArray()
+                };
             }
 
             Message message;
@@ -51,6 +62,11 @@ namespace Lithnet.ResourceManagement.Client.ResourceManagementService
                 message.AddHeader(AttributeNames.Locale, locale);
             }
 
+            if (includePermissions)
+            {
+                message.AddHeader(HeaderConstants.IncludePermissionHints, null);
+            }
+
             message.AddHeader(HeaderConstants.ResourceReferenceProperty, id.ToString());
 
             return message;
@@ -59,39 +75,36 @@ namespace Lithnet.ResourceManagement.Client.ResourceManagementService
 
         internal static Message CreateCreateMessage(ResourceObject resource)
         {
-            Create op = new Create();
+            Create op = new Create
+            {
+                Dialect = Namespaces.RMIdentityAttributeType,
+                Fragments = resource.GetPutFragements().ToArray<FragmentType>()
+            };
 
-            op.Dialect = Namespaces.RMIdentityAttributeType;
-            op.Fragments = resource.GetPutFragements().ToArray();
-
-            Message message;
-
-            message = Message.CreateMessage(MessageVersion.Default, Namespaces.Create, new SerializerBodyWriter(op));
+            Message message = Message.CreateMessage(MessageVersion.Default, Namespaces.Create, new SerializerBodyWriter(op));
             message.AddHeader(Namespaces.IdMDirectoryAccess, HeaderConstants.IdentityManagementOperation, null, true);
 
             return message;
         }
 
-        internal static Message CreateCreateMessage(IEnumerable<ResourceObject> resources)
+        internal static Message CreateCreateMessage(ResourceObject[] resources)
         {
             Create op = new Create();
-
             op.Dialect = Namespaces.RMIdentityAttributeType;
-
-            int count = resources.Count();
-            if (count == 0)
+            
+            if (resources == null || resources.Length == 0)
             {
-                throw new ArgumentNullException("resources");
+                throw new ArgumentNullException(nameof(resources));
             }
-            else if (count == 1)
+            else if (resources.Length == 1)
             {
-                return MessageComposer.CreateCreateMessage(resources.First());
+                return MessageComposer.CreateCreateMessage(resources[0]);
             }
 
-            List<PutFragmentType> fragments = new List<PutFragmentType>();
+            List<FragmentType> fragments = new List<FragmentType>();
+
             foreach (ResourceObject resource in resources)
             {
-
                 foreach (PutFragmentType fragment in resource.GetPutFragements())
                 {
                     fragment.TargetIdentifier = resource.ObjectID.ToString(false);
@@ -99,8 +112,14 @@ namespace Lithnet.ResourceManagement.Client.ResourceManagementService
                 }
 
                 // Add Object ID
-                PutFragmentType fragmentObjectID = new PutFragmentType(AttributeNames.ObjectID, ModeType.Insert,
-                    AttributeNames.ObjectID, null, false, resource.ObjectID.ToString(false));
+                PutFragmentType fragmentObjectID = new PutFragmentType(
+                    AttributeNames.ObjectID,
+                    ModeType.Insert,
+                    AttributeNames.ObjectID,
+                    null,
+                    false,
+                    resource.ObjectID.ToString(false));
+
                 fragmentObjectID.TargetIdentifier = resource.ObjectID.ToString(false);
                 fragments.Add(fragmentObjectID);
 
@@ -113,9 +132,7 @@ namespace Lithnet.ResourceManagement.Client.ResourceManagementService
 
             op.Fragments = fragments.ToArray();
 
-            Message message;
-
-            message = Message.CreateMessage(MessageVersion.Default, Namespaces.Create, new SerializerBodyWriter(op));
+            Message message = Message.CreateMessage(MessageVersion.Default, Namespaces.Create, new SerializerBodyWriter(op));
             message.AddHeader(Namespaces.IdMDirectoryAccess, HeaderConstants.IdentityManagementOperation, null, true);
             message.AddHeader(Namespaces.ResourceManagement, HeaderConstants.CompositeTypeOperation, null);
             message.AddHeader(HeaderConstants.ResourceReferenceProperty, resources.Select(t => t.ObjectID.ToString(false)).ToCommaSeparatedString());
@@ -125,19 +142,18 @@ namespace Lithnet.ResourceManagement.Client.ResourceManagementService
 
         internal static Message CreatePutMessage(ResourceObject resource, CultureInfo locale)
         {
-            Put op = new Put();
-
-            op.Dialect = Namespaces.RMIdentityAttributeType;
-            op.Fragments = resource.GetPutFragements().ToArray();
+            Put op = new Put
+            {
+                Dialect = Namespaces.RMIdentityAttributeType,
+                Fragments = resource.GetPutFragements().ToArray()
+            };
 
             if (op.Fragments == null || op.Fragments.Length == 0)
             {
                 return null;
             }
 
-            Message message;
-
-            message = Message.CreateMessage(MessageVersion.Default, Namespaces.Put, new SerializerBodyWriter(op));
+            Message message = Message.CreateMessage(MessageVersion.Default, Namespaces.Put, new SerializerBodyWriter(op));
             message.AddHeader(Namespaces.IdMDirectoryAccess, HeaderConstants.IdentityManagementOperation, null, true);
             message.AddHeader(HeaderConstants.ResourceReferenceProperty, resource.ObjectID.ToString());
 
@@ -149,16 +165,15 @@ namespace Lithnet.ResourceManagement.Client.ResourceManagementService
             return message;
         }
 
-        internal static Message CreatePutMessage(IEnumerable<ResourceObject> resources)
+        internal static Message CreatePutMessage(ResourceObject[] resources)
         {
-            int count = resources.Count();
-            if (count == 0)
+            if (resources == null || resources.Length == 0)
             {
-                throw new ArgumentNullException("resources");
+                throw new ArgumentNullException(nameof(resources));
             }
-            else if (count == 1)
+            else if (resources.Length == 1)
             {
-                return MessageComposer.CreatePutMessage(resources.First(), null);
+                return MessageComposer.CreatePutMessage(resources[0], null);
             }
 
             Put op = new Put();
@@ -181,9 +196,8 @@ namespace Lithnet.ResourceManagement.Client.ResourceManagementService
             }
 
             op.Fragments = fragments.ToArray();
-            Message message;
 
-            message = Message.CreateMessage(MessageVersion.Default, Namespaces.Put, new SerializerBodyWriter(op));
+            Message message = Message.CreateMessage(MessageVersion.Default, Namespaces.Put, new SerializerBodyWriter(op));
             message.AddHeader(Namespaces.IdMDirectoryAccess, HeaderConstants.IdentityManagementOperation, null, true);
             message.AddHeader(Namespaces.ResourceManagement, HeaderConstants.CompositeTypeOperation, null);
             message.AddHeader(HeaderConstants.ResourceReferenceProperty, resources.Select(t => t.ObjectID.ToString()).ToCommaSeparatedString());
@@ -195,56 +209,57 @@ namespace Lithnet.ResourceManagement.Client.ResourceManagementService
         {
             if (id == null)
             {
-                throw new ArgumentNullException("id");
+                throw new ArgumentNullException(nameof(id));
             }
 
             MessageComposer.ThrowOnDeleteBuiltInResource(id);
 
-            Message message;
-            message = Message.CreateMessage(MessageVersion.Default, Namespaces.Delete);
+            Message message = Message.CreateMessage(MessageVersion.Default, Namespaces.Delete);
             message.AddHeader(HeaderConstants.ResourceReferenceProperty, id.ToString());
 
             return message;
         }
 
-        internal static Message CreateDeleteMessage(IEnumerable<UniqueIdentifier> ids)
+        internal static Message CreateDeleteMessage(UniqueIdentifier[] ids)
         {
-            int count = ids.Count();
-            if (count == 0)
+            if (ids == null || ids.Length == 0)
             {
-                throw new ArgumentNullException("ids");
+                throw new ArgumentNullException(nameof(ids));
             }
-            else if (count == 1)
+            else if (ids.Length == 1)
             {
                 return MessageComposer.CreateDeleteMessage(ids.First());
             }
 
             MessageComposer.ThrowOnDeleteBuiltInResource(ids);
 
-            Message message;
-            message = Message.CreateMessage(MessageVersion.Default, Namespaces.Delete);
+            Message message = Message.CreateMessage(MessageVersion.Default, Namespaces.Delete);
             message.AddHeader(Namespaces.ResourceManagement, HeaderConstants.CompositeTypeOperation, null);
             message.AddHeader(HeaderConstants.ResourceReferenceProperty, ids.Select(t => t.ToString()).ToCommaSeparatedString());
 
             return message;
         }
 
-        internal static Message CreateEnumerateMessage(string filter, int pageSize, IEnumerable<string> attributes, IEnumerable<SortingAttribute> sortingAttributes, CultureInfo locale)
+        internal static Message CreateEnumerateMessage(string filter, int pageSize, string[] attributes, SortingAttribute[] sortingAttributes, CultureInfo locale)
         {
-            Enumerate request = new Enumerate();
-            request.Filter = new FilterType(filter);
-            request.MaxElements = pageSize < 0 ? MessageComposer.DefaultPageSize : pageSize.ToString();
+            Enumerate request = new Enumerate
+            {
+                Filter = new FilterType(filter),
+                MaxElements = pageSize < 0 ? MessageComposer.DefaultPageSize : pageSize.ToString()
+            };
 
-            if (attributes != null)
+            if (attributes != null && attributes.Length > 0)
             {
                 request.Selection = MessageComposer.AddMandatoryAttributes(attributes, locale).ToArray();
             }
 
-            if (sortingAttributes != null && sortingAttributes.Any())
+            if (sortingAttributes != null && sortingAttributes.Length > 0)
             {
-                request.Sorting = new Sorting();
-                request.Sorting.Dialect = Namespaces.ResourceManagement;
-                request.Sorting.SortingAttributes = sortingAttributes.ToArray();
+                request.Sorting = new Sorting
+                {
+                    Dialect = Namespaces.ResourceManagement,
+                    SortingAttributes = sortingAttributes
+                };
             }
 
             if (locale != null)
@@ -261,17 +276,18 @@ namespace Lithnet.ResourceManagement.Client.ResourceManagementService
 
         internal static Message GeneratePullMessage(EnumerationContextType context, int pageSize)
         {
-            Pull op = new Pull();
-            op.EnumerationContext = context;
-            op.MaxElements = pageSize.ToString();
+            Pull op = new Pull
+            {
+                EnumerationContext = context,
+                MaxElements = pageSize.ToString()
+            };
 
             return Message.CreateMessage(MessageVersion.Soap12WSAddressing10, Namespaces.Pull, new SerializerBodyWriter(op));
         }
 
         internal static Message GenerateReleaseMessage(EnumerationContextType context)
         {
-            Release op = new Release();
-            op.EnumerationContext = context;
+            Release op = new Release { EnumerationContext = context };
 
             return Message.CreateMessage(MessageVersion.Soap12WSAddressing10, Namespaces.Release, new SerializerBodyWriter(op));
         }
@@ -284,14 +300,9 @@ namespace Lithnet.ResourceManagement.Client.ResourceManagementService
             return message;
         }
 
-        private static IEnumerable<string> AddMandatoryAttributes(IEnumerable<string> attributes, CultureInfo locale)
+        private static IEnumerable<string> AddMandatoryAttributes(string[] attributes, CultureInfo locale)
         {
-            HashSet<string> set = new HashSet<string>();
-
-            foreach (string attribute in attributes)
-            {
-                set.Add(attribute);
-            }
+            HashSet<string> set = new HashSet<string>(attributes);
 
             foreach (string item in ResourceManagementSchema.MandatoryAttributes)
             {
@@ -316,14 +327,10 @@ namespace Lithnet.ResourceManagement.Client.ResourceManagementService
 
         private static void ThrowOnDeleteBuiltInResource(UniqueIdentifier id)
         {
-            if (id == MessageComposer.anonymousResource ||
-                id == MessageComposer.builtInAdminAccount ||
-                id == MessageComposer.fimServiceAccount ||
-                id == MessageComposer.syncServiceAccount)
+            if (MessageComposer.builtInResources.Contains(id))
             {
-                throw new InvalidOperationException(string.Format("A request to delete a built-in resource has been stopped by the client library. Resource: {0}", id.ToString()));
+                throw new InvalidOperationException($"A request to delete a built-in resource has been stopped by the client library. Resource: {id}");
             }
-
         }
     }
 }

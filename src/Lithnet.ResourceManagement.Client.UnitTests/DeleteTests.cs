@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using Lithnet.ResourceManagement.Client;
-using Lithnet.ResourceManagement.Client.ResourceManagementService;
+﻿using System.Collections.Generic;
 using Microsoft.ResourceManagement.WebServices;
-using Microsoft.ResourceManagement.WebServices.Exceptions;
-using Microsoft.ResourceManagement.WebServices.IdentityManagementOperation;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Lithnet.ResourceManagement.Client.UnitTests
@@ -13,6 +7,22 @@ namespace Lithnet.ResourceManagement.Client.UnitTests
     [TestClass]
     public class DeleteTests
     {
+        [TestMethod]
+        public void DeleteEmptyListResource()
+        {
+            ResourceManagementClient client = new ResourceManagementClient();
+
+            client.DeleteResources(new List<ResourceObject>());
+        }
+
+        [TestMethod]
+        public void DeleteEmptyListUniqueIdentifier()
+        {
+            ResourceManagementClient client = new ResourceManagementClient();
+
+            client.DeleteResources(new List<UniqueIdentifier>());
+        }
+
         [TestMethod]
         public void DeleteByID()
         {
